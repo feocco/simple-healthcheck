@@ -30,10 +30,10 @@ def get_docker_configs():
     return discord_webhook_url, healthcheck_interval_sec, healthcheck_url, service_name
 
 
-def send_notification(discord_webhook_url):
+def send_notification(discord_webhook_url, service_name):
     webhook = DiscordWebhook(url=discord_webhook_url)
-    embed = DiscordEmbed(title='Mealie is down!',
-                         description='Mealie is down! Go check it out.', color='03b2f8')
+    embed = DiscordEmbed(title=f'{service_name} is down!',
+                         description=f'{service_name} is down! Go check it out.', color='03b2f8')
     webhook.add_embed(embed)
 
     response = webhook.execute()
@@ -58,11 +58,11 @@ def main():
             
             if r.status_code != 200:
                 logging.info('Site is down. Sending notification')
-                send_notification(discord_webhook_url)
+                send_notification(discord_webhook_url, service_name)
         
         except requests.exceptions.RequestException as e:
             logging.error(f'Error polling site. Error: {e}')
-            send_notification(discord_webhook_url)
+            send_notification(discord_webhook_url, service_name)
 
         time.sleep(int(healthcheck_interval_sec))
 
